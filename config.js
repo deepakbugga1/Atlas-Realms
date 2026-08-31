@@ -1,0 +1,1 @@
+window.ATLAS_CONFIG={SUPABASE_URL:'https://uugffbupgmspfmzmkwnr.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_zvMcbjNI51NCfw8S3ukm-g_vKJ2n9Jy'};
