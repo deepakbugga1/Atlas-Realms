@@ -12,16 +12,16 @@ python -m http.server 8787
 
 Then open `http://127.0.0.1:8787`.
 
-The browser connects to the project's Supabase backend. Authenticated game actions are processed by the `game-actions` Edge Function.
+Or double-click `START-GAME.bat`.
 
 ## Current systems
 
-- 34 fictional atlas provinces with irregular polygons
+- 34 irregular fictional atlas provinces
 - Land area, terrain, climate, elevation, rivers and resource data
 - Player-created countries, flags and cultures
-- Server-authoritative founding, expansion and turn processing
+- Server-authoritative country founding, expansion and turn processing
 - Treasury coins plus food, iron, gold, oil and gems
-- Infrastructure, education, healthcare and housing development
-- Population growth and stability/happiness systems
-- Diplomacy and on-the-spot AI trade negotiation
-- Responsive desktop/mobile UI
+- Population, stability, happiness and development systems
+- Infrastructure, education, healthcare and housing
+- Diplomacy and AI trade negotiation
+- Responsive desktop/mobile interface
