@@ -1,0 +1,57 @@
+name: Atlas Realms CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate static web app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check required files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in index.html app.js styles.css config.js; do
+            test -f "$file"
+          done
+
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app.js
+          node --check config.js
+
+      - name: Validate HTML asset references
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'href="styles.css"' index.html
+          grep -q 'src="config.js"' index.html
+          grep -q 'src="app.js"' index.html
+
+      - name: Scan for obvious broken merge markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RInE '^(<<<<<<<|=======|>>>>>>>)' --exclude-dir=.git .; then
+            echo 'Merge-conflict markers found.'
+            exit 1
+          fi
