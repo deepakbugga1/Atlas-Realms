@@ -44,7 +44,9 @@ window.supabase = {
         select(){ return chain; },
         order(){ return Promise.resolve(result(table)); },
         eq(){ return chain; },
-        maybeSingle(){ return Promise.resolve({data:table==='countries'?country:null,error:null}); }
+        maybeSingle(){ return Promise.resolve({data:table==='countries'?country:null,error:null}); },
+        then(resolve,reject){ return Promise.resolve(result(table)).then(resolve,reject); },
+        catch(reject){ return Promise.resolve(result(table)).catch(reject); }
       };
       return chain;
     }
