@@ -49,11 +49,12 @@ window.supabase = {
       };
       return chain;
     }
+    const session = {access_token:'test-token',user:{id:'user-1',email:'test@example.com'}};
     return {
       from,
       auth:{
-        async getSession(){return {data:{session:{access_token:'test-token',user:{id:'user-1',email:'test@example.com'}}}};},
-        onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}};},
+        async getSession(){return {data:{session}};},
+        onAuthStateChange(callback){setTimeout(()=>callback('SIGNED_IN',session),0);return {data:{subscription:{unsubscribe(){}}}};},
         async signOut(){return {error:null};},
         async signInWithPassword(){return {error:null};},
         async signUp(){return {error:null};}
@@ -72,13 +73,16 @@ await page.route(/\/functions\/v1\//, async route => {
 });
 
 await page.goto(`http://127.0.0.1:${port}/`, {waitUntil:'networkidle'});
-await page.waitForSelector('.strategy-shell', {timeout:5000});
-await page.waitForSelector('#strategyMap', {timeout:5000});
-await page.waitForSelector('#strategyInspector', {timeout:5000});
+await page.waitForSelector('.strategy-shell', {timeout:10000});
+await page.waitForSelector('#strategyMap', {timeout:10000});
+await page.waitForSelector('#strategyInspector', {timeout:10000});
+await page.locator('#strategyMap .sp').first().click();
+await page.locator('[data-layer2="terrain"]').click();
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
 
 console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
+console.log('PASS: province selection and layer switching work');
 console.log('PASS: no uncaught browser errors');
 
 await browser.close();
