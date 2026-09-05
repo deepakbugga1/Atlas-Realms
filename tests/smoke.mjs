@@ -73,9 +73,22 @@ await page.route(/\/functions\/v1\//, async route => {
 });
 
 await page.goto(`http://127.0.0.1:${port}/`, {waitUntil:'networkidle'});
-await page.waitForSelector('.strategy-shell', {timeout:10000});
-await page.waitForSelector('#strategyMap', {timeout:10000});
-await page.waitForSelector('#strategyInspector', {timeout:10000});
+try {
+  await page.waitForSelector('.strategy-shell', {timeout:10000});
+  await page.waitForSelector('#strategyMap', {timeout:10000});
+  await page.waitForSelector('#strategyInspector', {timeout:10000});
+} catch (error) {
+  const state = await page.evaluate(() => ({
+    bodyText: document.body.innerText.slice(0, 1200),
+    authHidden: document.querySelector('#authScreen')?.classList.contains('hidden'),
+    foundHidden: document.querySelector('#foundScreen')?.classList.contains('hidden'),
+    gameHidden: document.querySelector('#gameScreen')?.classList.contains('hidden'),
+    strategyShellCount: document.querySelectorAll('.strategy-shell').length,
+    strategyMapCount: document.querySelectorAll('#strategyMap').length,
+    strategyInspectorCount: document.querySelectorAll('#strategyInspector').length
+  }));
+  throw new Error(`${error.message}\nUI state: ${JSON.stringify(state)}\nBrowser errors: ${errors.join(' | ') || 'none'}`);
+}
 await page.locator('#strategyMap .sp').first().click();
 await page.locator('[data-layer2="terrain"]').click();
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
