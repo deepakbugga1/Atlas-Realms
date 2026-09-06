@@ -62,8 +62,8 @@ window.supabase = {
   }
 };`;
 
-// Match the CDN script regardless of query-string or loader variations.
-await page.route(/https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2(?:\?.*)?$/, route => route.fulfill({status:200,contentType:'text/javascript',body:supabaseStub}));
+// Intercept the exact package family, including any loader-added query string.
+await page.route('**/npm/@supabase/supabase-js@2**', route => route.fulfill({status:200,contentType:'text/javascript',body:supabaseStub}));
 await page.route(/\/functions\/v1\//, async route => {
   const body = JSON.parse(route.request().postData() || '{}');
   const payload = body.action === 'list_armies'
