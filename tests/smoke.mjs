@@ -33,10 +33,9 @@ window.supabase = {
       {id:'r1',name:'Northgate',terrain:'Plains',climate:'Temperate',continent:'Aster',center_x:250,center_y:250,land_area_km2:1000,base_population:50000,resources:{food:20,iron:10,gold:5,oil:3},polygon:[[120,150],[300,140],[340,260],[210,300],[110,240]],borders:['r2']},
       {id:'r2',name:'Stonepass',terrain:'Mountains',climate:'Cold',continent:'Aster',center_x:520,center_y:270,land_area_km2:1200,base_population:30000,resources:{food:8,iron:25,gold:2,oil:1},polygon:[[340,180],[550,150],[620,280],[500,360],[340,300]],borders:['r1']}
     ];
-    const countries = [country];
     function result(table){
       if(table==='regions') return {data:regions,error:null};
-      if(table==='countries') return {data:countries,error:null};
+      if(table==='countries') return {data:[country],error:null};
       return {data:[],error:null};
     }
     function from(table){
@@ -63,7 +62,8 @@ window.supabase = {
   }
 };`;
 
-await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', route => route.fulfill({status:200,contentType:'text/javascript',body:supabaseStub}));
+// Match the CDN script regardless of query-string or loader variations.
+await page.route(/https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2(?:\?.*)?$/, route => route.fulfill({status:200,contentType:'text/javascript',body:supabaseStub}));
 await page.route(/\/functions\/v1\//, async route => {
   const body = JSON.parse(route.request().postData() || '{}');
   const payload = body.action === 'list_armies'
