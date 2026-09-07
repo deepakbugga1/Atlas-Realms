@@ -62,8 +62,13 @@ window.supabase = {
   }
 };`;
 
-// Intercept the exact package family, including any loader-added query string.
-await page.route('**/npm/@supabase/supabase-js@2**', route => route.fulfill({status:200,contentType:'text/javascript',body:supabaseStub}));
+// Intercept the whole jsDelivr package host so query-string and loader variations cannot bypass the stub.
+await page.route('**://cdn.jsdelivr.net/**', route => {
+  if (route.request().url().includes('@supabase/supabase-js')) {
+    return route.fulfill({status:200,contentType:'text/javascript',body:supabaseStub});
+  }
+  return route.continue();
+});
 await page.route(/\/functions\/v1\//, async route => {
   const body = JSON.parse(route.request().postData() || '{}');
   const payload = body.action === 'list_armies'
