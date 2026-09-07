@@ -62,14 +62,9 @@ window.supabase = {
   }
 };`;
 
-// Intercept the whole jsDelivr package host so query-string and loader variations cannot bypass the stub.
-await page.route('**://cdn.jsdelivr.net/**', route => {
-  if (route.request().url().includes('@supabase/supabase-js')) {
-    return route.fulfill({status:200,contentType:'text/javascript',body:supabaseStub});
-  }
-  return route.continue();
-});
-await page.route(/\/functions\/v1\//, async route => {
+await page.addInitScript({content: supabaseStub});
+await page.route('**://cdn.jsdelivr.net/**', route => route.abort());
+await page.route(/\\/functions\\/v1\\//, async route => {
   const body = JSON.parse(route.request().postData() || '{}');
   const payload = body.action === 'list_armies'
     ? {armies:[],country:{id:'country-1', user_id:'user-1', country_name:'Test Realm', flag_emoji:'🜲', capital_region:'r1', region_ids:['r1'], treasury:1200, population:100000, food:500, iron:200, gold:100, oil:150, gems:20, military:100, score:100, turn_number:1, stability:80, production:100, infrastructure:20, education:20, healthcare:20, housing:20, buildings:{}, techs:[]}}
