@@ -91,11 +91,18 @@ try {
 }
 await page.locator('#strategyMap .sp').first().click();
 await page.locator('[data-layer2="terrain"]').click();
+await page.locator('.strategy-shell').focus();
+await page.keyboard.press('3');
+if (await page.locator('[data-layer2="resources"]').evaluate(el => !el.classList.contains('active'))) {
+  throw new Error('Keyboard layer shortcut did not activate resources layer');
+}
+await page.keyboard.press('r');
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
 
 console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
 console.log('PASS: province selection and layer switching work');
+console.log('PASS: keyboard shortcuts and map reset work');
 console.log('PASS: no uncaught browser errors');
 
 await browser.close();
