@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in index.html app.js strategy-mode.js styles.css config.js tests/smoke.mjs; do
+          for file in index.html app.js strategy-mode.js strategy-enhancements.js styles.css config.js tests/smoke.mjs; do
             test -f "$file"
           done
 
@@ -38,6 +38,7 @@ jobs:
           set -euo pipefail
           node --check app.js
           node --check strategy-mode.js
+          node --check strategy-enhancements.js
           node --check config.js
           node --check tests/smoke.mjs
 
@@ -49,6 +50,7 @@ jobs:
           grep -q 'src="config.js"' index.html
           grep -q 'src="app.js"' index.html
           grep -q 'src="strategy-mode.js"' index.html
+          grep -q 'src="strategy-enhancements.js"' index.html
 
       - name: Scan for obvious broken merge markers
         shell: bash
