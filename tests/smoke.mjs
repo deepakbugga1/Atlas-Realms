@@ -97,12 +97,15 @@ if (await page.locator('[data-layer2="resources"]').evaluate(el => !el.classList
   throw new Error('Keyboard layer shortcut did not activate resources layer');
 }
 await page.keyboard.press('r');
+await page.keyboard.press('+');
+const zoom = await page.locator('#strategyViewport').getAttribute('data-zoom');
+if (zoom !== '1.1') throw new Error(`Keyboard zoom shortcut did not update zoom: ${zoom}`);
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
 
 console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
 console.log('PASS: province selection and layer switching work');
-console.log('PASS: keyboard shortcuts and map reset work');
+console.log('PASS: keyboard shortcuts, map reset, and zoom work');
 console.log('PASS: no uncaught browser errors');
 
 await browser.close();
