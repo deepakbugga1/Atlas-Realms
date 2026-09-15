@@ -10,7 +10,7 @@
     const hint=document.createElement('div');
     hint.className='strategy-shortcuts';
     hint.setAttribute('role','note');
-    hint.textContent='Shortcuts: 1–6 layers · R reset · +/- zoom · Esc close panel';
+    hint.textContent='Shortcuts: 1–6 layers · 0 political · R reset · +/- zoom · ? help · Esc close panel';
     layers.insertAdjacentElement('afterend',hint);
     const status=document.createElement('div');
     status.className='strategy-shortcut-status';
@@ -38,12 +38,18 @@
     });
     shell.addEventListener('keydown',event=>{
       if(event.target.matches('input,textarea,select,button')) return;
+      const key=event.key.toLowerCase();
       if(event.key>='1'&&event.key<='6'){
         const layer=layerKeys[Number(event.key)-1];
         const button=layers.querySelector(`[data-layer2="${layer}"]`);
         button?.click();
       }
-      if(event.key.toLowerCase()==='r'){
+      if(event.key==='0'){
+        const button=layers.querySelector('[data-layer2="political"]');
+        button?.click();
+        announce('Political layer active');
+      }
+      if(key==='r'){
         viewport.scrollTo({left:0,top:0,behavior:'smooth'});
         viewport.dataset.zoom='1';
         const svg=viewport.querySelector('svg');
@@ -52,6 +58,10 @@
       }
       if(event.key==='+'||event.key==='=')updateZoom(.1);
       if(event.key==='-'||event.key==='_')updateZoom(-.1);
+      if(event.key==='?'){
+        hint.hidden=!hint.hidden;
+        announce(hint.hidden?'Shortcut help hidden':'Shortcut help shown');
+      }
       if(event.key==='Escape'){
         const modal=document.querySelector('.strategy-modal');
         if(modal){modal.remove();announce('Panel closed');}
