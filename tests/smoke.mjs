@@ -96,6 +96,18 @@ await page.keyboard.press('3');
 if (await page.locator('[data-layer2="resources"]').evaluate(el => !el.classList.contains('active'))) {
   throw new Error('Keyboard layer shortcut did not activate resources layer');
 }
+await page.keyboard.press('0');
+if (await page.locator('[data-layer2="political"]').evaluate(el => !el.classList.contains('active'))) {
+  throw new Error('Political shortcut did not activate political layer');
+}
+await page.keyboard.press('?');
+if (!(await page.locator('.strategy-shortcuts').isHidden())) {
+  throw new Error('Shortcut help toggle did not hide the help text');
+}
+await page.keyboard.press('?');
+if (await page.locator('.strategy-shortcuts').isHidden()) {
+  throw new Error('Shortcut help toggle did not restore the help text');
+}
 await page.keyboard.press('r');
 await page.keyboard.press('+');
 const zoom = await page.locator('#strategyViewport').getAttribute('data-zoom');
@@ -105,7 +117,7 @@ if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
 console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
 console.log('PASS: province selection and layer switching work');
-console.log('PASS: keyboard shortcuts, map reset, and zoom work');
+console.log('PASS: political shortcut, help toggle, reset, and zoom work');
 console.log('PASS: no uncaught browser errors');
 
 await browser.close();
