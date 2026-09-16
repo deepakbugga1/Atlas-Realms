@@ -112,12 +112,16 @@ await page.keyboard.press('r');
 await page.keyboard.press('+');
 const zoom = await page.locator('#strategyViewport').getAttribute('data-zoom');
 if (zoom !== '1.1') throw new Error(`Keyboard zoom shortcut did not update zoom: ${zoom}`);
+await page.locator('[data-layer2="terrain"]').click();
+const retainedZoom = await page.locator('#strategyViewport').getAttribute('data-zoom');
+if (retainedZoom !== '1.1') throw new Error(`Layer switch did not retain zoom: ${retainedZoom}`);
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
 
 console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
 console.log('PASS: province selection and layer switching work');
 console.log('PASS: political shortcut, help toggle, reset, and zoom work');
+console.log('PASS: zoom is retained across layer switches');
 console.log('PASS: no uncaught browser errors');
 
 await browser.close();
