@@ -23,18 +23,28 @@
       button.setAttribute('aria-label',`Show ${label} layer`);
     });
     const announce=(message)=>{status.textContent=message;};
+    const restoreZoom=()=>{
+      const nextViewport=document.querySelector('#strategyViewport');
+      const svg=nextViewport?.querySelector('svg');
+      if(!nextViewport||!svg)return;
+      const saved=Number(shell.dataset.mapZoom||1);
+      nextViewport.dataset.zoom=String(saved);
+      svg.style.transform=`scale(${saved}) rotateX(3deg)`;
+    };
     const updateZoom=(delta)=>{
-      const svg=viewport.querySelector('svg');
-      if(!svg)return;
-      const current=Number(viewport.dataset.zoom||1);
+      const current=Number(shell.dataset.mapZoom||viewport.dataset.zoom||1);
       const next=Math.max(.8,Math.min(1.8,Math.round((current+delta)*10)/10));
-      viewport.dataset.zoom=String(next);
+      shell.dataset.mapZoom=String(next);
+      const currentViewport=document.querySelector('#strategyViewport');
+      const svg=currentViewport?.querySelector('svg');
+      if(!currentViewport||!svg)return;
+      currentViewport.dataset.zoom=String(next);
       svg.style.transform=`scale(${next}) rotateX(3deg)`;
       announce(`Map zoom ${next.toFixed(1)}x`);
     };
     layers.addEventListener('click',event=>{
       const button=event.target.closest('button[data-layer2]');
-      if(button)announce(`${button.dataset.layer2} layer active`);
+      if(button){announce(`${button.dataset.layer2} layer active`);queueMicrotask(restoreZoom);}
     });
     shell.addEventListener('keydown',event=>{
       if(event.target.matches('input,textarea,select,button')) return;
@@ -50,10 +60,10 @@
         announce('Political layer active');
       }
       if(key==='r'){
-        viewport.scrollTo({left:0,top:0,behavior:'smooth'});
-        viewport.dataset.zoom='1';
-        const svg=viewport.querySelector('svg');
-        if(svg)svg.style.transform='rotateX(3deg)';
+        shell.dataset.mapZoom='1';
+        const currentViewport=document.querySelector('#strategyViewport');
+        currentViewport?.scrollTo({left:0,top:0,behavior:'smooth'});
+        restoreZoom();
         announce('Map view reset');
       }
       if(event.key==='+'||event.key==='=')updateZoom(.1);
@@ -68,6 +78,7 @@
       }
     });
     shell.tabIndex=0;
+    restoreZoom();
   };
   new MutationObserver(boot).observe(document.body,{childList:true,subtree:true});
   boot();
