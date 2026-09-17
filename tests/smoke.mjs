@@ -96,6 +96,14 @@ await page.keyboard.press('3');
 if (await page.locator('[data-layer2="resources"]').evaluate(el => !el.classList.contains('active'))) {
   throw new Error('Keyboard layer shortcut did not activate resources layer');
 }
+await page.keyboard.press('m');
+if (await page.locator('[data-layer2="military"]').evaluate(el => !el.classList.contains('active'))) {
+  throw new Error('Military command shortcut did not activate military layer');
+}
+await page.keyboard.press('s');
+if (await page.locator('#strategySearch').evaluate(el => document.activeElement !== el)) {
+  throw new Error('Search shortcut did not focus the province search field');
+}
 await page.keyboard.press('0');
 if (await page.locator('[data-layer2="political"]').evaluate(el => !el.classList.contains('active'))) {
   throw new Error('Political shortcut did not activate political layer');
@@ -120,6 +128,7 @@ if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
 console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
 console.log('PASS: province selection and layer switching work');
+console.log('PASS: military command and search shortcuts work');
 console.log('PASS: political shortcut, help toggle, reset, and zoom work');
 console.log('PASS: zoom is retained across layer switches');
 console.log('PASS: no uncaught browser errors');
