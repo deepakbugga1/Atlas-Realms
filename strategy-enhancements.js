@@ -10,7 +10,7 @@
     const hint=document.createElement('div');
     hint.className='strategy-shortcuts';
     hint.setAttribute('role','note');
-    hint.textContent='Shortcuts: 1–6 layers · 0 political · R reset · +/- zoom · ? help · Esc close panel';
+    hint.textContent='Shortcuts: 1–6 layers · 0 political · M military · S search · R reset · +/- zoom · ? help · Esc close panel';
     layers.insertAdjacentElement('afterend',hint);
     const status=document.createElement('div');
     status.className='strategy-shortcut-status';
@@ -42,6 +42,11 @@
       svg.style.transform=`scale(${next}) rotateX(3deg)`;
       announce(`Map zoom ${next.toFixed(1)}x`);
     };
+    const activateLayer=(name)=>{
+      const button=layers.querySelector(`[data-layer2="${name}"]`);
+      button?.click();
+      announce(`${name} layer active`);
+    };
     layers.addEventListener('click',event=>{
       const button=event.target.closest('button[data-layer2]');
       if(button){announce(`${button.dataset.layer2} layer active`);queueMicrotask(restoreZoom);}
@@ -49,15 +54,12 @@
     shell.addEventListener('keydown',event=>{
       if(event.target.matches('input,textarea,select,button')) return;
       const key=event.key.toLowerCase();
-      if(event.key>='1'&&event.key<='6'){
-        const layer=layerKeys[Number(event.key)-1];
-        const button=layers.querySelector(`[data-layer2="${layer}"]`);
-        button?.click();
-      }
-      if(event.key==='0'){
-        const button=layers.querySelector('[data-layer2="political"]');
-        button?.click();
-        announce('Political layer active');
+      if(event.key>='1'&&event.key<='6') activateLayer(layerKeys[Number(event.key)-1]);
+      if(event.key==='0') activateLayer('political');
+      if(key==='m') activateLayer('military');
+      if(key==='s'){
+        const search=document.querySelector('#strategySearch');
+        if(search){search.focus();search.select();announce('Province search focused');}
       }
       if(key==='r'){
         shell.dataset.mapZoom='1';
