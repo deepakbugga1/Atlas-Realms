@@ -10,7 +10,7 @@
     const hint=document.createElement('div');
     hint.className='strategy-shortcuts';
     hint.setAttribute('role','note');
-    hint.textContent='Shortcuts: 1–6 layers · 0 political · M military · S search · R reset · +/- zoom · ? help · Esc close panel';
+    hint.textContent='Shortcuts: 1–6 layers · 0 political · [/] cycle layers · M military · S search · R reset · +/- zoom · ? help · Esc close panel';
     layers.insertAdjacentElement('afterend',hint);
     const status=document.createElement('div');
     status.className='strategy-shortcut-status';
@@ -47,6 +47,12 @@
       button?.click();
       announce(`${name} layer active`);
     };
+    const cycleLayer=(step)=>{
+      const active=layers.querySelector('button[data-layer2].active')?.dataset.layer2||'political';
+      const index=Math.max(0,layerKeys.indexOf(active));
+      const next=layerKeys[(index+step+layerKeys.length)%layerKeys.length];
+      activateLayer(next);
+    };
     layers.addEventListener('click',event=>{
       const button=event.target.closest('button[data-layer2]');
       if(button){announce(`${button.dataset.layer2} layer active`);queueMicrotask(restoreZoom);}
@@ -56,6 +62,8 @@
       const key=event.key.toLowerCase();
       if(event.key>='1'&&event.key<='6') activateLayer(layerKeys[Number(event.key)-1]);
       if(event.key==='0') activateLayer('political');
+      if(event.key==='[') cycleLayer(-1);
+      if(event.key===']') cycleLayer(1);
       if(key==='m') activateLayer('military');
       if(key==='s'){
         const search=document.querySelector('#strategySearch');
