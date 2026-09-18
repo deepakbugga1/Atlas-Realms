@@ -23,7 +23,9 @@ const port = server.address().port;
 const browser = await chromium.launch({headless:true});
 const page = await browser.newPage();
 const errors = [];
+const failedRequests = [];
 page.on('pageerror', e => errors.push(String(e)));
+page.on('requestfailed', request => failedRequests.push(`${request.method()} ${request.url()} :: ${request.failure()?.errorText || 'unknown failure'}`));
 
 const supabaseStub = `
 window.supabase = {
@@ -87,7 +89,7 @@ try {
     strategyMapCount: document.querySelectorAll('#strategyMap').length,
     strategyInspectorCount: document.querySelectorAll('#strategyInspector').length
   }));
-  throw new Error(`${error.message}\nUI state: ${JSON.stringify(state)}\nBrowser errors: ${errors.join(' | ') || 'none'}`);
+  throw new Error(`${error.message}\nUI state: ${JSON.stringify(state)}\nBrowser errors: ${errors.join(' | ') || 'none'}\nFailed requests: ${failedRequests.join(' | ') || 'none'}`);
 }
 await page.locator('#strategyMap .sp').first().click();
 await page.locator('[data-layer2="terrain"]').click();
@@ -124,6 +126,7 @@ await page.locator('[data-layer2="terrain"]').click();
 const retainedZoom = await page.locator('#strategyViewport').getAttribute('data-zoom');
 if (retainedZoom !== '1.1') throw new Error(`Layer switch did not retain zoom: ${retainedZoom}`);
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
+if (failedRequests.length) throw new Error(`Failed browser requests:\n${failedRequests.join('\n')}`);
 
 console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
@@ -132,6 +135,7 @@ console.log('PASS: military command and search shortcuts work');
 console.log('PASS: political shortcut, help toggle, reset, and zoom work');
 console.log('PASS: zoom is retained across layer switches');
 console.log('PASS: no uncaught browser errors');
+console.log('PASS: no failed browser requests');
 
 await browser.close();
 server.close();
