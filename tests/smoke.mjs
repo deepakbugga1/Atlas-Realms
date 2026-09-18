@@ -110,6 +110,14 @@ await page.keyboard.press('0');
 if (await page.locator('[data-layer2="political"]').evaluate(el => !el.classList.contains('active'))) {
   throw new Error('Political shortcut did not activate political layer');
 }
+await page.keyboard.press(']');
+if (await page.locator('[data-layer2="terrain"]').evaluate(el => !el.classList.contains('active'))) {
+  throw new Error('Next-layer shortcut did not cycle to terrain');
+}
+await page.keyboard.press('[');
+if (await page.locator('[data-layer2="political"]').evaluate(el => !el.classList.contains('active'))) {
+  throw new Error('Previous-layer shortcut did not cycle to political');
+}
 await page.keyboard.press('?');
 if (!(await page.locator('.strategy-shortcuts').isHidden())) {
   throw new Error('Shortcut help toggle did not hide the help text');
@@ -132,7 +140,7 @@ console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
 console.log('PASS: province selection and layer switching work');
 console.log('PASS: military command and search shortcuts work');
-console.log('PASS: political shortcut, help toggle, reset, and zoom work');
+console.log('PASS: layer cycle, political shortcut, help toggle, reset, and zoom work');
 console.log('PASS: zoom is retained across layer switches');
 console.log('PASS: no uncaught browser errors');
 console.log('PASS: no failed browser requests');
