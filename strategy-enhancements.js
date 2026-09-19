@@ -58,8 +58,10 @@
       if(button){announce(`${button.dataset.layer2} layer active`);queueMicrotask(restoreZoom);}
     });
     shell.addEventListener('keydown',event=>{
-      if(event.target.matches('input,textarea,select,button')) return;
+      if(event.target.matches('input,textarea,select,button')||event.altKey||event.ctrlKey||event.metaKey) return;
       const key=event.key.toLowerCase();
+      const isShortcut=([']','[','?','+','=','-','_','0','1','2','3','4','5','6','escape'].includes(event.key)||['m','s','r'].includes(key));
+      if(isShortcut) event.preventDefault();
       if(event.key>='1'&&event.key<='6') activateLayer(layerKeys[Number(event.key)-1]);
       if(event.key==='0') activateLayer('political');
       if(event.key==='[') cycleLayer(-1);
