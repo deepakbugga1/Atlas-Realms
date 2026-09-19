@@ -133,6 +133,12 @@ if (zoom !== '1.1') throw new Error(`Keyboard zoom shortcut did not update zoom:
 await page.locator('[data-layer2="terrain"]').click();
 const retainedZoom = await page.locator('#strategyViewport').getAttribute('data-zoom');
 if (retainedZoom !== '1.1') throw new Error(`Layer switch did not retain zoom: ${retainedZoom}`);
+await page.keyboard.down('Control');
+await page.keyboard.press('s');
+await page.keyboard.up('Control');
+if (await page.locator('#strategySearch').evaluate(el => document.activeElement !== el)) {
+  throw new Error('Modified shortcut should not steal focus from the active control');
+}
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
 if (failedRequests.length) throw new Error(`Failed browser requests:\n${failedRequests.join('\n')}`);
 
@@ -142,6 +148,7 @@ console.log('PASS: province selection and layer switching work');
 console.log('PASS: military command and search shortcuts work');
 console.log('PASS: layer cycle, political shortcut, help toggle, reset, and zoom work');
 console.log('PASS: zoom is retained across layer switches');
+console.log('PASS: modified shortcuts do not steal focus');
 console.log('PASS: no uncaught browser errors');
 console.log('PASS: no failed browser requests');
 
