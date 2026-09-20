@@ -10,7 +10,7 @@
     const hint=document.createElement('div');
     hint.className='strategy-shortcuts';
     hint.setAttribute('role','note');
-    hint.textContent='Shortcuts: 1–6 layers · 0 political · [/] cycle layers · M military · S search · R reset · +/- zoom · ? help · Esc close panel';
+    hint.textContent='Shortcuts: 1–6 layers · 0 political · [/] cycle layers · M military · S search · Arrow keys pan · R reset · +/- zoom · ? help · Esc close panel';
     layers.insertAdjacentElement('afterend',hint);
     const status=document.createElement('div');
     status.className='strategy-shortcut-status';
@@ -42,6 +42,12 @@
       svg.style.transform=`scale(${next}) rotateX(3deg)`;
       announce(`Map zoom ${next.toFixed(1)}x`);
     };
+    const pan=(dx,dy)=>{
+      const currentViewport=document.querySelector('#strategyViewport');
+      if(!currentViewport)return;
+      currentViewport.scrollBy({left:dx,top:dy,behavior:'smooth'});
+      announce(`Map panned ${dx||dy>0?'forward':'back'} ${Math.abs(dx||dy)} pixels`);
+    };
     const activateLayer=(name)=>{
       const button=layers.querySelector(`[data-layer2="${name}"]`);
       button?.click();
@@ -60,7 +66,7 @@
     shell.addEventListener('keydown',event=>{
       if(event.target.matches('input,textarea,select,button')||event.altKey||event.ctrlKey||event.metaKey) return;
       const key=event.key.toLowerCase();
-      const isShortcut=([']','[','?','+','=','-','_','0','1','2','3','4','5','6','escape'].includes(event.key)||['m','s','r'].includes(key));
+      const isShortcut=([']','[','?','+','=','-','_','0','1','2','3','4','5','6','escape','arrowup','arrowdown','arrowleft','arrowright'].includes(event.key)||['m','s','r'].includes(key));
       if(isShortcut) event.preventDefault();
       if(event.key>='1'&&event.key<='6') activateLayer(layerKeys[Number(event.key)-1]);
       if(event.key==='0') activateLayer('political');
@@ -78,6 +84,10 @@
         restoreZoom();
         announce('Map view reset');
       }
+      if(event.key==='ArrowUp') pan(0,-120);
+      if(event.key==='ArrowDown') pan(0,120);
+      if(event.key==='ArrowLeft') pan(-120,0);
+      if(event.key==='ArrowRight') pan(120,0);
       if(event.key==='+'||event.key==='=')updateZoom(.1);
       if(event.key==='-'||event.key==='_')updateZoom(-.1);
       if(event.key==='?'){
