@@ -46,7 +46,9 @@
       const currentViewport=document.querySelector('#strategyViewport');
       if(!currentViewport)return;
       currentViewport.scrollBy({left:dx,top:dy,behavior:'smooth'});
-      announce(`Map panned ${dx||dy>0?'forward':'back'} ${Math.abs(dx||dy)} pixels`);
+      const axis=dx!==0?'horizontal':'vertical';
+      const direction=(dx||dy)>0?'forward':'back';
+      announce(`Map panned ${direction} ${Math.abs(dx||dy)} pixels ${axis}`);
     };
     const activateLayer=(name)=>{
       const button=layers.querySelector(`[data-layer2="${name}"]`);
