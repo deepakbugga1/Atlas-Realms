@@ -18,9 +18,17 @@
     status.setAttribute('aria-live','polite');
     status.textContent='Map ready';
     layers.insertAdjacentElement('afterend',status);
+    const syncLayerState=()=>{
+      const active=layers.querySelector('button[data-layer2].active')?.dataset.layer2||'political';
+      layers.querySelectorAll('button[data-layer2]').forEach(button=>{
+        button.setAttribute('aria-pressed',String(button.dataset.layer2===active));
+      });
+      return active;
+    };
     layers.querySelectorAll('button[data-layer2]').forEach(button=>{
       const label=button.dataset.layer2||'map';
       button.setAttribute('aria-label',`Show ${label} layer`);
+      button.setAttribute('aria-pressed','false');
     });
     const announce=(message)=>{status.textContent=message;};
     const restoreZoom=()=>{
@@ -53,17 +61,18 @@
     const activateLayer=(name)=>{
       const button=layers.querySelector(`[data-layer2="${name}"]`);
       button?.click();
+      syncLayerState();
       announce(`${name} layer active`);
     };
     const cycleLayer=(step)=>{
-      const active=layers.querySelector('button[data-layer2].active')?.dataset.layer2||'political';
+      const active=syncLayerState();
       const index=Math.max(0,layerKeys.indexOf(active));
       const next=layerKeys[(index+step+layerKeys.length)%layerKeys.length];
       activateLayer(next);
     };
     layers.addEventListener('click',event=>{
       const button=event.target.closest('button[data-layer2]');
-      if(button){announce(`${button.dataset.layer2} layer active`);queueMicrotask(restoreZoom);}
+      if(button){syncLayerState();announce(`${button.dataset.layer2} layer active`);queueMicrotask(restoreZoom);}
     });
     shell.addEventListener('keydown',event=>{
       if(event.target.matches('input,textarea,select,button')||event.altKey||event.ctrlKey||event.metaKey) return;
@@ -102,6 +111,7 @@
       }
     });
     shell.tabIndex=0;
+    syncLayerState();
     restoreZoom();
   };
   new MutationObserver(boot).observe(document.body,{childList:true,subtree:true});
