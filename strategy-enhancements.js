@@ -10,7 +10,7 @@
     const hint=document.createElement('div');
     hint.className='strategy-shortcuts';
     hint.setAttribute('role','note');
-    hint.textContent='Shortcuts: 1–6 layers · 0 political · [/] cycle layers · M military · S search · Arrow keys pan · R reset · +/- zoom · ? help · Esc close panel';
+    hint.textContent='Shortcuts: 1–6 layers · 0 political · [/] cycle layers · M military · S search · Arrow keys pan · Home center · End inspector · R reset · +/- zoom · ? help · Esc close panel';
     layers.insertAdjacentElement('afterend',hint);
     const status=document.createElement('div');
     status.className='strategy-shortcut-status';
@@ -58,6 +58,19 @@
       const direction=(dx||dy)>0?'forward':'back';
       announce(`Map panned ${direction} ${Math.abs(dx||dy)} pixels ${axis}`);
     };
+    const centerMap=()=>{
+      const currentViewport=document.querySelector('#strategyViewport');
+      if(!currentViewport)return;
+      currentViewport.scrollTo({left:Math.max(0,(currentViewport.scrollWidth-currentViewport.clientWidth)/2),top:Math.max(0,(currentViewport.scrollHeight-currentViewport.clientHeight)/2),behavior:'smooth'});
+      announce('Map centered');
+    };
+    const focusInspector=()=>{
+      const inspector=document.querySelector('#strategyInspector');
+      if(!inspector)return;
+      inspector.setAttribute('tabindex','-1');
+      inspector.focus({preventScroll:true});
+      announce('Strategy inspector focused');
+    };
     const activateLayer=(name)=>{
       const button=layers.querySelector(`[data-layer2="${name}"]`);
       button?.click();
@@ -77,7 +90,7 @@
     shell.addEventListener('keydown',event=>{
       if(event.target.matches('input,textarea,select,button')||event.altKey||event.ctrlKey||event.metaKey) return;
       const key=event.key.toLowerCase();
-      const isShortcut=([']','[','?','+','=','-','_','0','1','2','3','4','5','6','escape','arrowup','arrowdown','arrowleft','arrowright'].includes(event.key)||['m','s','r'].includes(key));
+      const isShortcut=([']','[','?','+','=','-','_','0','1','2','3','4','5','6','escape','arrowup','arrowdown','arrowleft','arrowright','home','end'].includes(event.key)||['m','s','r'].includes(key));
       if(isShortcut) event.preventDefault();
       if(event.key>='1'&&event.key<='6') activateLayer(layerKeys[Number(event.key)-1]);
       if(event.key==='0') activateLayer('political');
@@ -95,6 +108,8 @@
         restoreZoom();
         announce('Map view reset');
       }
+      if(event.key==='Home') centerMap();
+      if(event.key==='End') focusInspector();
       if(event.key==='ArrowUp') pan(0,-120);
       if(event.key==='ArrowDown') pan(0,120);
       if(event.key==='ArrowLeft') pan(-120,0);
