@@ -139,10 +139,16 @@ if (terrainPressed !== 'true' || politicalPressed !== 'false') throw new Error(`
 await page.keyboard.press('ArrowRight');
 const status = await page.locator('.strategy-shortcut-status').textContent();
 if (!status?.includes('Map panned')) throw new Error(`Arrow-key pan did not announce movement: ${status}`);
+await page.keyboard.press('Home');
+const centeredStatus = await page.locator('.strategy-shortcut-status').textContent();
+if (centeredStatus !== 'Map centered') throw new Error(`Home shortcut did not center the map: ${centeredStatus}`);
+await page.keyboard.press('End');
+const inspectorFocused = await page.locator('#strategyInspector').evaluate(el => document.activeElement === el);
+if (!inspectorFocused) throw new Error('End shortcut did not focus the strategy inspector');
 await page.keyboard.down('Control');
 await page.keyboard.press('s');
 await page.keyboard.up('Control');
-if (await page.locator('#strategySearch').evaluate(el => document.activeElement !== el)) {
+if (await page.locator('#strategyInspector').evaluate(el => document.activeElement !== el)) {
   throw new Error('Modified shortcut should not steal focus from the active control');
 }
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
@@ -156,6 +162,7 @@ console.log('PASS: layer cycle, political shortcut, help toggle, reset, and zoom
 console.log('PASS: zoom is retained across layer switches');
 console.log('PASS: layer buttons expose accurate aria-pressed state');
 console.log('PASS: keyboard map panning works');
+console.log('PASS: Home centers map and End focuses inspector');
 console.log('PASS: modified shortcuts do not steal focus');
 console.log('PASS: no uncaught browser errors');
 console.log('PASS: no failed browser requests');
