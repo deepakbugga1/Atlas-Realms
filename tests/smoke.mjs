@@ -151,6 +151,15 @@ await page.keyboard.up('Control');
 if (await page.locator('#strategyInspector').evaluate(el => document.activeElement !== el)) {
   throw new Error('Modified shortcut should not steal focus from the active control');
 }
+await page.locator('[data-map-action="zoom-in"]').click();
+const buttonZoom = await page.locator('#strategyViewport').getAttribute('data-zoom');
+if (buttonZoom !== '1.2') throw new Error(`Map zoom button did not update zoom: ${buttonZoom}`);
+await page.locator('[data-map-action="reset"]').click();
+const resetZoom = await page.locator('#strategyViewport').getAttribute('data-zoom');
+if (resetZoom !== '1') throw new Error(`Map reset button did not restore zoom: ${resetZoom}`);
+await page.locator('[data-map-action="center"]').click();
+const buttonStatus = await page.locator('.strategy-shortcut-status').textContent();
+if (buttonStatus !== 'Map centered') throw new Error(`Center button did not announce centering: ${buttonStatus}`);
 if (errors.length) throw new Error(`Browser errors:\n${errors.join('\n')}`);
 if (failedRequests.length) throw new Error(`Failed browser requests:\n${failedRequests.join('\n')}`);
 
@@ -164,6 +173,7 @@ console.log('PASS: layer buttons expose accurate aria-pressed state');
 console.log('PASS: keyboard map panning works');
 console.log('PASS: Home centers map and End focuses inspector');
 console.log('PASS: modified shortcuts do not steal focus');
+console.log('PASS: visible map controls zoom, reset, and center correctly');
 console.log('PASS: no uncaught browser errors');
 console.log('PASS: no failed browser requests');
 
