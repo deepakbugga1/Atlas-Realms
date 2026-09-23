@@ -18,6 +18,12 @@
     status.setAttribute('aria-live','polite');
     status.textContent='Map ready';
     layers.insertAdjacentElement('afterend',status);
+    const controls=document.createElement('div');
+    controls.className='strategy-map-controls';
+    controls.setAttribute('role','group');
+    controls.setAttribute('aria-label','Map controls');
+    controls.innerHTML='<button type="button" data-map-action="zoom-out" aria-label="Zoom map out">−</button><button type="button" data-map-action="zoom-in" aria-label="Zoom map in">+</button><button type="button" data-map-action="center" aria-label="Center map">Center</button><button type="button" data-map-action="reset" aria-label="Reset map view">Reset</button>';
+    status.insertAdjacentElement('afterend',controls);
     const syncLayerState=()=>{
       const active=layers.querySelector('button[data-layer2].active')?.dataset.layer2||'political';
       layers.querySelectorAll('button[data-layer2]').forEach(button=>{
@@ -64,6 +70,13 @@
       currentViewport.scrollTo({left:Math.max(0,(currentViewport.scrollWidth-currentViewport.clientWidth)/2),top:Math.max(0,(currentViewport.scrollHeight-currentViewport.clientHeight)/2),behavior:'smooth'});
       announce('Map centered');
     };
+    const resetMap=()=>{
+      shell.dataset.mapZoom='1';
+      const currentViewport=document.querySelector('#strategyViewport');
+      currentViewport?.scrollTo({left:0,top:0,behavior:'smooth'});
+      restoreZoom();
+      announce('Map view reset');
+    };
     const focusInspector=()=>{
       const inspector=document.querySelector('#strategyInspector');
       if(!inspector)return;
@@ -87,6 +100,13 @@
       const button=event.target.closest('button[data-layer2]');
       if(button){syncLayerState();announce(`${button.dataset.layer2} layer active`);queueMicrotask(restoreZoom);}
     });
+    controls.addEventListener('click',event=>{
+      const action=event.target.closest('[data-map-action]')?.dataset.mapAction;
+      if(action==='zoom-in')updateZoom(.1);
+      if(action==='zoom-out')updateZoom(-.1);
+      if(action==='center')centerMap();
+      if(action==='reset')resetMap();
+    });
     shell.addEventListener('keydown',event=>{
       if(event.target.matches('input,textarea,select,button')||event.altKey||event.ctrlKey||event.metaKey) return;
       const key=event.key.toLowerCase();
@@ -101,13 +121,7 @@
         const search=document.querySelector('#strategySearch');
         if(search){search.focus();search.select();announce('Province search focused');}
       }
-      if(key==='r'){
-        shell.dataset.mapZoom='1';
-        const currentViewport=document.querySelector('#strategyViewport');
-        currentViewport?.scrollTo({left:0,top:0,behavior:'smooth'});
-        restoreZoom();
-        announce('Map view reset');
-      }
+      if(key==='r') resetMap();
       if(event.key==='Home') centerMap();
       if(event.key==='End') focusInspector();
       if(event.key==='ArrowUp') pan(0,-120);
