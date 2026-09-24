@@ -4,9 +4,11 @@
     const shell=document.querySelector('.strategy-shell');
     const viewport=document.querySelector('#strategyViewport');
     const layers=document.querySelector('.map-layers');
-    if(!shell||!viewport||!layers||shell.dataset.shortcutsReady==='1')return;
+    const map=document.querySelector('#strategyMap');
+    if(!shell||!viewport||!layers||!map||shell.dataset.shortcutsReady==='1')return;
     shell.dataset.shortcutsReady='1';
     shell.setAttribute('aria-label','Atlas Realms strategy command center');
+    shell.setAttribute('aria-keyshortcuts','1 2 3 4 5 6 0 [ ] M S R Home End ArrowUp ArrowDown ArrowLeft ArrowRight + - ? Escape');
     const hint=document.createElement('div');
     hint.className='strategy-shortcuts';
     hint.setAttribute('role','note');
@@ -99,6 +101,12 @@
     layers.addEventListener('click',event=>{
       const button=event.target.closest('button[data-layer2]');
       if(button){syncLayerState();announce(`${button.dataset.layer2} layer active`);queueMicrotask(restoreZoom);}
+    });
+    map.addEventListener('click',event=>{
+      const province=event.target.closest('.sp');
+      if(!province)return;
+      const name=province.getAttribute('aria-label')||province.dataset.name||province.id||'province';
+      announce(`Province selected: ${name}`);
     });
     controls.addEventListener('click',event=>{
       const action=event.target.closest('[data-map-action]')?.dataset.mapAction;
