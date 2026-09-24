@@ -91,7 +91,10 @@ try {
   }));
   throw new Error(`${error.message}\nUI state: ${JSON.stringify(state)}\nBrowser errors: ${errors.join(' | ') || 'none'}\nFailed requests: ${failedRequests.join(' | ') || 'none'}`);
 }
-await page.locator('#strategyMap .sp').first().click();
+const firstProvince = page.locator('#strategyMap .sp').first();
+await firstProvince.click();
+const selectedStatus = await page.locator('.strategy-shortcut-status').textContent();
+if (!selectedStatus?.includes('Province selected:')) throw new Error(`Province selection did not announce selection: ${selectedStatus}`);
 await page.locator('[data-layer2="terrain"]').click();
 await page.locator('.strategy-shell').focus();
 await page.keyboard.press('3');
@@ -165,6 +168,7 @@ if (failedRequests.length) throw new Error(`Failed browser requests:\n${failedRe
 
 console.log('PASS: strategy shell mounted');
 console.log('PASS: map and inspector rendered');
+console.log('PASS: province selection announces selected province');
 console.log('PASS: province selection and layer switching work');
 console.log('PASS: military command and search shortcuts work');
 console.log('PASS: layer cycle, political shortcut, help toggle, reset, and zoom work');
